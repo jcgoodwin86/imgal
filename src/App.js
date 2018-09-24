@@ -4,48 +4,55 @@ import logo from './logo.svg';
 import './App.css';
 import fetchAnonymousToken from './helpers';
 
-/*
-TODO: Setup where fetchAnonymousToken will be saved in local storage with a timestamp
-TODO: Then setSnoowrap will check for anonymousToken in local storage also check timestamp because token only last one hour
-TODO: If local storage doesn't have a token or it has expired, it will create a new one
-*/
-
 class App extends Component {
   state = {
     links: [],
     anonymousSnoowrap: null,
   };
 
-  setSnoowrap = () => {
+  async setSnoowrap() {
+    const anonymousToken = localStorage.getItem('anonymousToken');
+    const time = localStorage.getItem('time');
+    const currentTime = Math.round(new Date().getTime() / 1000.0); // Time in epoch
+    let token = null;
+
+    // Check if token exist or has expired
+    // The time is in epoch time 3600 is one hour
+    if (!anonymousToken || currentTime - time > 3600) {
+      token = await fetchAnonymousToken();
+      localStorage.setItem('anonymousToken', token);
+      localStorage.setItem('time', currentTime);
+    }
+
+    // Setup snoowrap with new or existing token
     const anonymousSnoowrap = new snoowrap({
       userAgent: 'imgal',
-      accessToken: fetchAnonymousToken(),
+      accessToken: token || anonymousToken,
     });
+
     this.setState({
       anonymousSnoowrap,
     });
-  };
+  }
 
-  getPost = posts => {
-    const links = posts.map((post, key) => (
-      <img src={post} key={key} alt="test" />
-    ));
+  async getPosts() {
+    const links = await this.state.anonymousSnoowrap
+      .getHot('spaceporn')
+      .map((post, key) => <img src={post.url} key={key} alt="test" />);
+
     this.setState({
       links,
     });
-  };
+  }
 
-  componentWillMount() {
-    // ! setSnoowrap need to run before everything else to be able to use it.
-    // TODO: Find out if this is the best way to run setSnoowrap
-    this.setSnoowrap();
+  // getPosts uses snoowrap so it has to wait for setSnoowrap to finish before it will work
+  async startUp() {
+    await this.setSnoowrap();
+    this.getPosts();
   }
 
   componentDidMount() {
-    this.state.anonymousSnoowrap
-      .getHot('spaceporn')
-      .map(post => post.url)
-      .then(this.getPost);
+    this.startUp();
   }
 
   render() {
