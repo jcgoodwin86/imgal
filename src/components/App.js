@@ -3,6 +3,7 @@ import snoowrap from 'snoowrap';
 import '../App.css';
 import fetchAnonymousToken from '../helpers';
 import MasonryPics from './MasonryPics';
+import Header from './Header';
 
 class App extends Component {
   state = {
@@ -58,6 +59,7 @@ class App extends Component {
   render() {
     return (
       <div className="App">
+        <Header />
         {/* Wait for links to populate before loading MasonryPics */}
         {this.state.links.length > 1 ? (
           <MasonryPics links={this.state.links} />
