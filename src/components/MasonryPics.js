@@ -66,7 +66,8 @@ const generateMedia = (numberOfItems, config) => {
 const Masonry = styled.div`
   display: flex;
   flex-flow: column wrap;
-  max-width: 100%;
+  max-width: 85%;
+  margin: 0 auto;
   height: ${p => (p.height === 0 ? '100vh' : `${p.height}px`)};
   width: ${p => (p.width ? `${p.width}px` : `${window.innerWidth}px`)};
   ${p =>
@@ -81,7 +82,7 @@ const MasonryPanel = styled.div`
 `;
 
 const MasonryContent = styled.div`
-  /*padding: 10px;*/
+  padding: 3px;
 `;
 
 /**
