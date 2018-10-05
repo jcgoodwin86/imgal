@@ -1,9 +1,17 @@
 import React, { Component } from 'react';
 import snoowrap from 'snoowrap';
+import styled, { injectGlobal } from 'styled-components';
+import styledNormalize from 'styled-normalize';
 import '../App.css';
 import fetchAnonymousToken from '../helpers';
 import MasonryPics from './MasonryPics';
 import Header from './Header';
+
+injectGlobal`
+  ${styledNormalize}
+
+  body {font-family: 'Work Sans';}
+`;
 
 class App extends Component {
   state = {
@@ -38,7 +46,7 @@ class App extends Component {
 
   async getPosts() {
     const links = await this.state.anonymousSnoowrap
-      .getHot('wallpaper')
+      .getHot('husky')
       .map((post, key) => <img src={post.url} key={key} alt="test" />);
 
     this.setState({
