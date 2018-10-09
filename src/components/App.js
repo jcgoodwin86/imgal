@@ -3,7 +3,7 @@ import snoowrap from 'snoowrap';
 import { injectGlobal } from 'styled-components';
 import styledNormalize from 'styled-normalize';
 import '../App.css';
-import fetchAnonymousToken from '../helpers';
+import fetchAnonymousToken, { checkURL } from '../helpers';
 import MasonryPics from './MasonryPics';
 import Header from './Header';
 
