@@ -82,7 +82,10 @@ class App extends Component {
   render() {
     return (
       <div className="App">
-        <Header />
+        <Header
+          setSubreddit={this.setSubreddit}
+          defaultSubreddit={this.state.subreddit}
+        />
         {/* Wait for links to populate before loading MasonryPics */}
         {this.state.links.length > 1 ? (
           <MasonryPics links={this.state.links} />

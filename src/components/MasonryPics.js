@@ -129,6 +129,23 @@ export default class MasonryPics extends Component {
     });
   };
 
+  componentDidUpdate(nextProps) {
+    if (this.props.links[0].props.src !== nextProps.links[0].props.src) {
+      // TODO: this coded is being used twice, maybe put it into it own function
+      const imgLoad = imagesLoaded(this.container, instance => {
+        this.layout();
+      });
+      imgLoad.on('progress', (instance, image) => {
+        // This trick allows us to avoid any floating pixel sizes 👍
+        image.img.style.height = image.img.height;
+        image.img.setAttribute('height', image.img.height);
+
+        const parentPanel = image.img.parentNode.parentNode;
+        parentPanel.setAttribute('style', `height: ${image.img.height}px`);
+        this.layout();
+      });
+    }
+  }
   /**
    * Trick here is to populate an array of column heights based on the panels
    * Referencing the panel order, the column heights are generated
