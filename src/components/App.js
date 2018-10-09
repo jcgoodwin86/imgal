@@ -17,6 +17,16 @@ class App extends Component {
   state = {
     links: [],
     anonymousSnoowrap: null,
+    subreddit: 'husky',
+  };
+
+  setSubreddit = newSubreddit => {
+    let subreddit = { ...this.state.subreddit };
+    subreddit = newSubreddit;
+    this.setState({
+      subreddit,
+    });
+    this.startUp();
   };
 
   async setSnoowrap() {
@@ -46,8 +56,13 @@ class App extends Component {
 
   async getPosts() {
     const links = await this.state.anonymousSnoowrap
-      .getHot('husky')
-      .map((post, key) => <img src={post.url} key={key} alt="test" />);
+      .getHot(this.state.subreddit)
+      .reduce((newList, post, key) => {
+        if (checkURL(post.url)) {
+          newList.push(<img src={post.url} key={key} alt="test" />);
+        }
+        return newList;
+      }, []);
 
     this.setState({
       links,
