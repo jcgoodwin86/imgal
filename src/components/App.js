@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import snoowrap from 'snoowrap';
-import styled, { injectGlobal } from 'styled-components';
+import { injectGlobal } from 'styled-components';
 import styledNormalize from 'styled-normalize';
 import '../App.css';
 import fetchAnonymousToken from '../helpers';
