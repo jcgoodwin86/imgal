@@ -1,14 +1,32 @@
 import React, { Component } from 'react';
 import snoowrap from 'snoowrap';
+import { injectGlobal } from 'styled-components';
+import styledNormalize from 'styled-normalize';
 import '../App.css';
-import fetchAnonymousToken from '../helpers';
+import fetchAnonymousToken, { checkURL } from '../helpers';
 import MasonryPics from './MasonryPics';
 import Header from './Header';
+
+injectGlobal`
+  ${styledNormalize}
+
+  body {font-family: 'Work Sans';}
+`;
 
 class App extends Component {
   state = {
     links: [],
     anonymousSnoowrap: null,
+    subreddit: 'husky',
+  };
+
+  setSubreddit = newSubreddit => {
+    let subreddit = { ...this.state.subreddit };
+    subreddit = newSubreddit;
+    this.setState({
+      subreddit,
+    });
+    this.startUp();
   };
 
   async setSnoowrap() {
@@ -38,8 +56,13 @@ class App extends Component {
 
   async getPosts() {
     const links = await this.state.anonymousSnoowrap
-      .getHot('wallpaper')
-      .map((post, key) => <img src={post.url} key={key} alt="test" />);
+      .getHot(this.state.subreddit)
+      .reduce((newList, post, key) => {
+        if (checkURL(post.url)) {
+          newList.push(<img src={post.url} key={key} alt="test" />);
+        }
+        return newList;
+      }, []);
 
     this.setState({
       links,
@@ -59,7 +82,10 @@ class App extends Component {
   render() {
     return (
       <div className="App">
-        <Header />
+        <Header
+          setSubreddit={this.setSubreddit}
+          defaultSubreddit={this.state.subreddit}
+        />
         {/* Wait for links to populate before loading MasonryPics */}
         {this.state.links.length > 1 ? (
           <MasonryPics links={this.state.links} />

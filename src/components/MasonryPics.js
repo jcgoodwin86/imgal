@@ -66,7 +66,8 @@ const generateMedia = (numberOfItems, config) => {
 const Masonry = styled.div`
   display: flex;
   flex-flow: column wrap;
-  max-width: 100%;
+  max-width: 85%;
+  margin: 0 auto;
   height: ${p => (p.height === 0 ? '100vh' : `${p.height}px`)};
   width: ${p => (p.width ? `${p.width}px` : `${window.innerWidth}px`)};
   ${p =>
@@ -81,7 +82,7 @@ const MasonryPanel = styled.div`
 `;
 
 const MasonryContent = styled.div`
-  /*padding: 10px;*/
+  padding: 3px;
 `;
 
 /**
@@ -104,7 +105,6 @@ const CLASSES = {
 export default class MasonryPics extends Component {
   state = {
     heights: [],
-    loading: true,
     maxHeight: 0,
     pads: [],
   };
@@ -112,22 +112,35 @@ export default class MasonryPics extends Component {
   componentDidMount = () => {
     const imgLoad = imagesLoaded(this.container, instance => {
       this.layout();
-      this.setState({
-        loading: false,
-      });
     });
     imgLoad.on('progress', (instance, image) => {
       // This trick allows us to avoid any floating pixel sizes 👍
       image.img.style.height = image.img.height;
       image.img.setAttribute('height', image.img.height);
-      // image.img.classList.remove('loading')
-      // NOTE: Not the cleanest thing to do here but this is a demo 😅
+
       const parentPanel = image.img.parentNode.parentNode;
       parentPanel.setAttribute('style', `height: ${image.img.height}px`);
       this.layout();
     });
   };
 
+  componentDidUpdate(nextProps) {
+    if (this.props.links[0].props.src !== nextProps.links[0].props.src) {
+      // TODO: this coded is being used twice, maybe put it into it own function
+      const imgLoad = imagesLoaded(this.container, instance => {
+        this.layout();
+      });
+      imgLoad.on('progress', (instance, image) => {
+        // This trick allows us to avoid any floating pixel sizes 👍
+        image.img.style.height = image.img.height;
+        image.img.setAttribute('height', image.img.height);
+
+        const parentPanel = image.img.parentNode.parentNode;
+        parentPanel.setAttribute('style', `height: ${image.img.height}px`);
+        this.layout();
+      });
+    }
+  }
   /**
    * Trick here is to populate an array of column heights based on the panels
    * Referencing the panel order, the column heights are generated
@@ -193,8 +206,7 @@ export default class MasonryPics extends Component {
         className={`${CLASSES.CONTAINER}`}
         innerRef={container => (this.container = container)}
         itemCount={this.props.links.length}
-        loadingContent={this.props.loading}
-        height={this.state.loading ? window.innerHeight : this.state.maxHeight}
+        height={this.state.maxHeight}
       >
         {this.props.links.map((link, key) => (
           <MasonryPanel key={key} className={`${CLASSES.PANEL}`}>
