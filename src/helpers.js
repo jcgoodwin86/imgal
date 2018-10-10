@@ -15,3 +15,8 @@ export default function fetchAnonymousToken() {
     .then(JSON.parse)
     .then(tokenInfo => tokenInfo.access_token);
 }
+
+// Checks if url is a photo
+export function checkURL(url) {
+  return url.match(/\.(jpeg|jpg|gif|png)$/) != null;
+}
