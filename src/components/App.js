@@ -20,6 +20,7 @@ class App extends Component {
     subreddit: 'husky',
   };
 
+  // Function for user to change subreddit
   setSubreddit = newSubreddit => {
     let subreddit = { ...this.state.subreddit };
     subreddit = newSubreddit;
