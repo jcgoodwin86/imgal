@@ -85,7 +85,7 @@ class App extends Component {
       <div className="App">
         <Header
           setSubreddit={this.setSubreddit}
-          defaultSubreddit={this.state.subreddit}
+          currentSubreddit={this.state.subreddit}
         />
         {/* Wait for links to populate before loading MasonryPics */}
         {this.state.links.length > 1 ? (

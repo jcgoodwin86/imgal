@@ -48,7 +48,7 @@ export default class SubredditForm extends Component {
           }}
           id="subreddit"
           name="subreddit"
-          placeholder={this.props.defaultSubreddit}
+          placeholder={this.props.currentSubreddit}
         />
         <button type="submit">Go!</button>
       </Form>

@@ -14,7 +14,10 @@ export default class Header extends Component {
     return (
       <header>
         <Logo>imgal</Logo>
-        <SubredditForm setSubreddit={this.props.setSubreddit} />
+        <SubredditForm
+          currentSubreddit={this.props.currentSubreddit}
+          setSubreddit={this.props.setSubreddit}
+        />
       </header>
     );
   }
