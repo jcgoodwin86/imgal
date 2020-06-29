@@ -1,8 +1,20 @@
-import React from 'react';
+import React, { useState } from 'react';
 import logo from './logo.svg';
 import './App.css';
+import snoowrap from 'snoowrap';
 
 function App() {
+
+  const [links, setLinks] = useState([]);
+  const [anonymousSnoowrap, setAnonymousSnoowrap] = useState(null);
+  const [sub, setSub] = useState('husky');
+
+  // Function for user to change subreddit
+  const setSubreddit = newSubreddit => {
+    setSub(newSubreddit)
+    this.startUp();
+  };
+
   return (
     <div className="App">
       <header className="App-header">
