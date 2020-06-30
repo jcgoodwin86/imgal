@@ -4,11 +4,13 @@ import snoowrap from 'snoowrap';
 import { checkURL, fetchAnonymousToken } from './helpers';
 import Header from './components/Header';
 
-function App() {
+function App(props) {
 
-  const [links, setLinks] = useState([]);
-  const [anonymousSnoowrap, setAnonymousSnoowrap] = useState(null);
+  const [links, setLinks] = useState(null);
   const [sub, setSub] = useState('husky');
+  // const [anonymousSnoowrap, setAnonymousSnoowrap] = useState(null)
+  let anonymousSnoowrap = null;
+
 
   async function setSnoowrap() {
     const anonymousToken = localStorage.getItem('anonymousToken');
@@ -20,22 +22,20 @@ function App() {
     // The time is in epoch time 3600 is one hour
     if (!anonymousToken || currentTime - time > 3600) {
       token = await fetchAnonymousToken();
-      console.log(token+'1')
       localStorage.setItem('anonymousToken', token);
       localStorage.setItem('time', currentTime);
     }
 
     // Setup snoowrap with new or existing token
-    setAnonymousSnoowrap(
-      new snoowrap({
+    anonymousSnoowrap = new snoowrap({
       userAgent: 'imgal',
-      accessToken: token || anonymousToken,
-    }));
+      accessToken: token || anonymousToken,  
+    })
+       
   }
 
   async function getPosts() {
-    setLinks(
-      await anonymousSnoowrap
+    setLinks(await anonymousSnoowrap
       .getHot(sub)
       .reduce((newList, post, key) => {
         if (checkURL(post.url)) {
@@ -45,29 +45,26 @@ function App() {
       }, []));
   }
 
-  // getPosts uses snoowrap so it has to wait for setSnoowrap to finish before it will work
-  // async function startUp() {
-  //   await setSnoowrap();
-  //   // getPosts();
-  // }
-
   // Function for user to change subreddit
   const setSubreddit = newSubreddit => {
     setSub(newSubreddit)
-    // this.startUp();
   };
 
   useEffect(() =>{
     async function startUp() {
       await setSnoowrap();
-      //getPosts();
+      getPosts();
     }
+
     startUp();
-  }, [])
+  },[sub])
 
   return (
     <div className="App">
       <Header setSubreddit={setSubreddit} currentSubreddit={sub}/>
+      <div className='content'>
+        {links}
+      </div>
     </div>
       );
 }

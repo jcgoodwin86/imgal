@@ -35,7 +35,6 @@ function SubredditForm(props)  {
   let subredditRef = useRef(null);
   const goToSubreddit = e => {
     e.preventDefault(); // Stop form from submitting
-    console.log(subredditRef.current.value)
     props.setSubreddit(subredditRef.current.value);
   };
 
