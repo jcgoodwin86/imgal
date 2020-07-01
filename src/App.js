@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import './App.css';
 import snoowrap from 'snoowrap';
 import { checkURL, fetchAnonymousToken } from './helpers';
@@ -9,10 +9,10 @@ function App(props) {
   const [links, setLinks] = useState(null);
   const [sub, setSub] = useState('husky');
   // const [anonymousSnoowrap, setAnonymousSnoowrap] = useState(null)
-  let anonymousSnoowrap = null;
+  let anonymousSnoowrap = useRef(null);
 
 
-  async function setSnoowrap() {
+  const setSnoowrap = useCallback( async () => {
     const anonymousToken = localStorage.getItem('anonymousToken');
     const time = localStorage.getItem('time');
     const currentTime = Math.round(new Date().getTime() / 1000.0); // Time in epoch
@@ -27,15 +27,14 @@ function App(props) {
     }
 
     // Setup snoowrap with new or existing token
-    anonymousSnoowrap = new snoowrap({
+    anonymousSnoowrap.current = new snoowrap({
       userAgent: 'imgal',
-      accessToken: token || anonymousToken,  
+      accessToken: token || anonymousToken,
     })
-       
-  }
+  })
 
-  async function getPosts() {
-    setLinks(await anonymousSnoowrap
+  const getPosts = useCallback( async () => {
+    setLinks(await anonymousSnoowrap.current
       .getHot(sub)
       .reduce((newList, post, key) => {
         if (checkURL(post.url)) {
@@ -43,7 +42,7 @@ function App(props) {
         }
         return newList;
       }, []));
-  }
+  }, [anonymousSnoowrap, sub])
 
   // Function for user to change subreddit
   const setSubreddit = newSubreddit => {
@@ -55,9 +54,8 @@ function App(props) {
       await setSnoowrap();
       getPosts();
     }
-
     startUp();
-  },[sub])
+  },[getPosts, setSnoowrap, sub])
 
   return (
     <div className="App">
