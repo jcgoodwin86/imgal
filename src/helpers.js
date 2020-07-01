@@ -1,5 +1,5 @@
 // Grabs Anonymous token from Reddit
-export default function fetchAnonymousToken() {
+export function fetchAnonymousToken() {
   const form = new FormData();
   form.set('grant_type', 'https://oauth.reddit.com/grants/installed_client');
   form.set('device_id', 'DO_NOT_TRACK_THIS_DEVICE');

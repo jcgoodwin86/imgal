@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useRef } from 'react';
 import styled from 'styled-components';
 
 const Form = styled.form`
@@ -31,27 +31,26 @@ const Input = styled.input`
   }
 `;
 
-export default class SubredditForm extends Component {
-  subredditRef = React.createRef();
-  goToSubreddit = e => {
+function SubredditForm(props)  {
+  let subredditRef = useRef(null);
+  const goToSubreddit = e => {
     e.preventDefault(); // Stop form from submitting
-    this.props.setSubreddit(this.subredditRef.value);
+    props.setSubreddit(subredditRef.current.value);
   };
-  render() {
+
     return (
-      <Form onSubmit={this.goToSubreddit}>
+      <Form onSubmit={goToSubreddit}>
         <Input2 type="text" placeholder="/r/" readOnly="readonly" />
         <Input
           type="text"
-          innerRef={e => {
-            this.subredditRef = e;
-          }}
+          ref={subredditRef}
           id="subreddit"
           name="subreddit"
-          placeholder={this.props.currentSubreddit}
+          placeholder={props.currentSubreddit}
         />
         <button type="submit">Go!</button>
       </Form>
     );
-  }
 }
+
+export default SubredditForm;
