@@ -31,7 +31,7 @@ function App(props) {
       userAgent: 'imgal',
       accessToken: token || anonymousToken,
     })
-  })
+  }, [])
 
   const getPosts = useCallback( async () => {
     setLinks(await anonymousSnoowrap.current
