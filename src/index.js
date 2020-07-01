@@ -3,9 +3,18 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
+import WebFont from 'webfontloader';
+import { GlobalStyle } from './styles'
+
+WebFont.load({
+  google: {
+    families: ['Work Sans:300,500,600', 'sans-serif']
+  }
+})
 
 ReactDOM.render(
   <React.StrictMode>
+    <GlobalStyle />
     <App />
   </React.StrictMode>,
   document.getElementById('root')
