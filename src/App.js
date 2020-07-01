@@ -3,8 +3,26 @@ import './App.css';
 import snoowrap from 'snoowrap';
 import { checkURL, fetchAnonymousToken } from './helpers';
 import Header from './components/Header';
+import Macy from 'macy'
 
-function App(props) {
+function App() {
+
+  window.setTimeout(() => {
+    Macy.init({
+      container: '.content',
+      column: 6,
+      margin: 24,
+      trueOrder: true,
+      waitForImages: true,
+      breakAt: {
+        1200: 6,
+        940: 3,
+        520: 2,
+        400: 1
+      }
+    })
+    return true;
+  }, 0);
 
   const [links, setLinks] = useState(null);
   const [sub, setSub] = useState('husky');
