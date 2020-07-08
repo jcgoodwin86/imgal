@@ -10,10 +10,11 @@ import snoowrap from 'snoowrap';
 import { checkURL, fetchAnonymousToken } from './helpers';
 import Header from './components/Header';
 import Macy from 'macy';
+import InfiniteScroll from 'react-infinite-scroll-component';
 
 function App() {
   window.setTimeout(() => {
-    Macy.init({
+    Macy({
       container: '.content',
       column: 6,
       margin: 24,
@@ -33,23 +34,14 @@ function App() {
     switch (action.type) {
       case 'STACK_IMAGES':
         return { ...state, images: state.images.concat(action.images) };
+      case 'CLEAR_STACK':
+        return { ...state, images: action.images };
       case 'FETCHING_IMAGES':
         return { ...state, fetching: action.fetching };
       default:
         return state;
     }
   };
-
-  const pageReducer = (state, action) => {
-    switch (action.type) {
-      case 'ADVANCE_PAGE':
-        return { ...state, after: state.after + 25 };
-      default:
-        return state;
-    }
-  };
-
-  const [pager, pagerDispatch] = useReducer(pageReducer, { after: 0 });
 
   const [imgData, imgDispatch] = useReducer(imgReducer, {
     images: [],
@@ -85,39 +77,61 @@ function App() {
     setSub(newSubreddit);
   };
 
-  useEffect(() => {
-    async function startUp() {
-      await setSnoowrap();
-      // getPosts();
-      imgDispatch({ type: 'FETCHING_IMAGES', fetching: true });
-      imgDispatch({
-        type: 'STACK_IMAGES',
-        images: await anonymousSnoowrap.current.getHot(sub, {
-          limit: 25,
-          after: pager.after,
-        }),
-      });
+  const getPost = useCallback(async () => {
+    console.log('i ran');
+    if (imgData.images[0]) {
+      if (
+        imgData.images[0].subreddit_name_prefixed.trim().toLowerCase() !==
+        `r/${sub}`.trim().toLowerCase()
+      ) {
+        imgDispatch({ type: 'CLEAR_STACK', images: [] });
+      }
     }
-    startUp();
-  }, [setSnoowrap, sub]);
+
+    imgDispatch({ type: 'FETCHING_IMAGES', fetching: true });
+    imgDispatch({
+      type: 'STACK_IMAGES',
+      images: await anonymousSnoowrap.current.getHot(sub, {
+        limit: 25,
+        after: '',
+      }),
+    });
+  }, [imgData.images, sub]);
+
+  useEffect(() => {
+    setSnoowrap();
+    getPost();
+  }, [sub]);
 
   return (
     <div className="App">
       <Header setSubreddit={setSubreddit} currentSubreddit={sub} />
-      <div className="content">
-        {imgData.images.map((post, i) => {
-          if (checkURL(post.url)) {
-            return (
-              <img
-                src={post.url}
-                key={i}
-                alt={post.title}
-                className="card-img-top"
-              />
-            );
-          }
-        })}
-      </div>
+      <InfiniteScroll
+        dataLength={imgData.images.length}
+        next={getPost}
+        hasMore={true}
+        loader={<h4>Loading...</h4>}
+        endMessage={
+          <p style={{ textAlign: 'center' }}>
+            <b>Yay! You have seen it all</b>
+          </p>
+        }
+      >
+        <div className="content">
+          {imgData.images.map((post, i) => {
+            if (checkURL(post.url)) {
+              return (
+                <img
+                  src={post.url}
+                  key={i}
+                  alt={post.title}
+                  className="card-img-top"
+                />
+              );
+            }
+          })}
+        </div>
+      </InfiniteScroll>
     </div>
   );
 }

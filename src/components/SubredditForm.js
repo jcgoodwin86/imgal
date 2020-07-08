@@ -31,26 +31,26 @@ const Input = styled.input`
   }
 `;
 
-function SubredditForm(props)  {
+function SubredditForm(props) {
   let subredditRef = useRef(null);
-  const goToSubreddit = e => {
+  const goToSubreddit = (e) => {
     e.preventDefault(); // Stop form from submitting
     props.setSubreddit(subredditRef.current.value);
   };
 
-    return (
-      <Form onSubmit={goToSubreddit}>
-        <Input2 type="text" placeholder="/r/" readOnly="readonly" />
-        <Input
-          type="text"
-          ref={subredditRef}
-          id="subreddit"
-          name="subreddit"
-          placeholder={props.currentSubreddit}
-        />
-        <button type="submit">Go!</button>
-      </Form>
-    );
+  return (
+    <Form onSubmit={goToSubreddit}>
+      <Input2 type="text" placeholder="/r/" readOnly="readonly" />
+      <Input
+        type="text"
+        ref={subredditRef}
+        id="subreddit"
+        name="subreddit"
+        placeholder={props.currentSubreddit}
+      />
+      <button type="submit">Go!</button>
+    </Form>
+  );
 }
 
 export default SubredditForm;
