@@ -50,6 +50,7 @@ function App() {
 
   const [sub, setSub] = useState('husky');
   let anonymousSnoowrap = useRef(null);
+  let afterRef = useRef('');
 
   const setSnoowrap = useCallback(async () => {
     const anonymousToken = localStorage.getItem('anonymousToken');
@@ -77,30 +78,28 @@ function App() {
     setSub(newSubreddit);
   };
 
-  const getPost = useCallback(async () => {
-    console.log('i ran');
-    if (imgData.images[0]) {
-      if (
-        imgData.images[0].subreddit_name_prefixed.trim().toLowerCase() !==
-        `r/${sub}`.trim().toLowerCase()
-      ) {
-        imgDispatch({ type: 'CLEAR_STACK', images: [] });
-      }
-    }
-
+  async function getPost() {
     imgDispatch({ type: 'FETCHING_IMAGES', fetching: true });
-    imgDispatch({
-      type: 'STACK_IMAGES',
-      images: await anonymousSnoowrap.current.getHot(sub, {
+    await anonymousSnoowrap.current
+      .getHot(sub, {
         limit: 25,
-        after: '',
-      }),
-    });
-  }, [imgData.images, sub]);
+        after: afterRef.current,
+      })
+      .then((posts) => {
+        imgDispatch({ type: 'STACK_IMAGES', images: posts });
+        afterRef.current = posts[posts.length - 1].name;
+      });
+  }
+
+  const startup = async () => {
+    await setSnoowrap();
+    getPost();
+  };
 
   useEffect(() => {
-    setSnoowrap();
-    getPost();
+    imgDispatch({ type: 'CLEAR_STACK', images: [] });
+    afterRef.current = '';
+    startup();
   }, [sub]);
 
   return (
@@ -126,6 +125,7 @@ function App() {
                   key={i}
                   alt={post.title}
                   className="card-img-top"
+                  loading="lazy"
                 />
               );
             }
