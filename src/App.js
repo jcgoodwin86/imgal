@@ -1,13 +1,13 @@
 import React, {
   useState,
   useEffect,
-  useCallback,
   useRef,
   useReducer,
+  useCallback
 } from 'react';
 import './App.css';
 import snoowrap from 'snoowrap';
-import { checkURL, fetchAnonymousToken } from './helpers';
+import { checkURL, createToken } from './helpers';
 import Header from './components/Header';
 import Macy from 'macy';
 import InfiniteScroll from 'react-infinite-scroll-component';
@@ -30,6 +30,9 @@ function App() {
     return true;
   }, 0);
 
+  const [sub, setSub] = useState('husky');
+  let afterRef = useRef('');
+
   const imgReducer = (state, action) => {
     switch (action.type) {
       case 'STACK_IMAGES':
@@ -45,42 +48,28 @@ function App() {
 
   const [imgData, imgDispatch] = useReducer(imgReducer, {
     images: [],
-    fetching: true,
+    fetching: false,
   });
 
-  const [sub, setSub] = useState('husky');
-  let anonymousSnoowrap = useRef(null);
-  let afterRef = useRef('');
-
-  const setSnoowrap = useCallback(async () => {
-    const anonymousToken = localStorage.getItem('anonymousToken');
-    const time = localStorage.getItem('time');
-    const currentTime = Math.round(new Date().getTime() / 1000.0); // Time in epoch
-    let token = null;
-
-    // Check if token exist or has expired
-    // The time is in epoch time 3600 is one hour
-    if (!anonymousToken || currentTime - time > 3600) {
-      token = await fetchAnonymousToken();
-      localStorage.setItem('anonymousToken', token);
-      localStorage.setItem('time', currentTime);
-    }
-
-    // Setup snoowrap with new or existing token
-    anonymousSnoowrap.current = new snoowrap({
+  const setSnoowrap = async () => {
+    // Setup snoowrap with token
+    const token = await createToken()
+    return (new snoowrap({
       userAgent: 'imgal',
-      accessToken: token || anonymousToken,
-    });
-  }, []);
+      accessToken: token
+    }));
+  };
 
   // Function for user to change subreddit
   const setSubreddit = (newSubreddit) => {
     setSub(newSubreddit);
   };
 
-  async function getPost() {
+  const getPost = useCallback(async () => {
+    const anonymousSnoowrap = await setSnoowrap()
+  
     imgDispatch({ type: 'FETCHING_IMAGES', fetching: true });
-    await anonymousSnoowrap.current
+    await anonymousSnoowrap
       .getHot(sub, {
         limit: 25,
         after: afterRef.current,
@@ -89,18 +78,13 @@ function App() {
         imgDispatch({ type: 'STACK_IMAGES', images: posts });
         afterRef.current = posts[posts.length - 1].name;
       });
-  }
-
-  const startup = async () => {
-    await setSnoowrap();
-    getPost();
-  };
+  }, [sub])
 
   useEffect(() => {
     imgDispatch({ type: 'CLEAR_STACK', images: [] });
     afterRef.current = '';
-    startup();
-  }, [sub]);
+    getPost();
+  }, [getPost, sub]);
 
   return (
     <div className="App">
@@ -129,6 +113,7 @@ function App() {
                 />
               );
             }
+            return null;
           })}
         </div>
       </InfiniteScroll>
